@@ -29,8 +29,13 @@ def resize_image(path_to_file, *args):
     name, ext = os.path.splitext(path_to_file)
     width, height, scale, output = args[0], args[1], args[2],args[3]
 
-    write_image = lambda out_width, out_height: img.resize((out_width, out_height)).save("{}__{}x{}{}".\
-                                                            format(name, out_width, out_height, ext))
+    save_string = "{0}__{2}x{3}{1}"
+
+    if output:
+        save_string = "{4}{1}"
+
+    write_image = lambda out_width, out_height: \
+        img.resize((out_width, out_height)).save(save_string.format(name, ext, out_width, out_height, output))
 
     if scale:
         width, height = abs(int(img.size[0]*scale)), abs(int(img.size[1]*scale))
