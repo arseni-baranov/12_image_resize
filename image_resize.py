@@ -4,8 +4,19 @@ import os.path
 
 
 def get_console_args():
+    usage = 'image.py source [-h] [--width WIDTH] [--height HEIGHT] [--scale SCALE] [--output OUTPUT] source\n' \
+            'source - the source image which needs to be resized\n' \
+            'width - the width of the output file\n' \
+            'height - the height of the output file\n' \
+            'scale - the scale of the output file\n' \
+            'output - filename for saving the output file\n\n' \
+            '------ note ------\n\n' \
+            'You can only specify scale or width/height\n' \
+            'Indicating output file is not mandatory\n' \
+            'When indicating only width or height, the output image will be upscaled proportionally\n'\
+            'When indicating height and width, image proportions are probably not constrained'
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument("source", help="Path to the source image")
     parser.add_argument("--width", "--w",  help="Width of the output file", type=int)
     parser.add_argument("--height", "--h",  help="Height of the output file", type=int)
@@ -15,10 +26,8 @@ def get_console_args():
     args = parser.parse_args()
 
     if args.scale and (args.width or args.height):
-        print('Specify only scale or width/height')
         parser.print_usage()
     elif not args.width and not args.height and not args.scale:
-        print('Specify either scale or width/height')
         parser.print_usage()
 
     return args
@@ -34,8 +43,6 @@ def calculate_sizes(img, width, height, scale):
         elif height and not width:
             exp = height/img.height
             width, height = abs(int(img.width*exp)), abs(int(img.height*exp))
-        else:
-            print('Notice: image proportions are probably not constrained')
 
     return width, height
 
