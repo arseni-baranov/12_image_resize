@@ -24,39 +24,42 @@ def get_console_args():
     return args
 
 
-def resize_image(path_to_file, *args):
+def calculate_sizes(img, width, height, scale):
+    if scale:
+        width, height = abs(int(img.size[0]*scale)), abs(int(img.size[1]*scale))
+    else:
+        if width and not height:
+            exp = width/img.width
+            width, height = abs(int(img.width*exp)), abs(int(img.height*exp))
+        elif height and not width:
+            exp = height/img.height
+            width, height = abs(int(img.width*exp)), abs(int(img.height*exp))
+        else:
+            print('Notice: image proportions are probably not constrained')
+
+    return width, height
+
+
+def resize_image(path_to_file, res_width, res_height, output):
     img = Image.open(path_to_file)
     name, ext = os.path.splitext(path_to_file)
-    width, height, scale, output = args[0], args[1], args[2],args[3]
 
     save_string = "{0}__{2}x{3}{1}"
 
     if output:
         save_string = "{4}{1}"
 
-    write_image = lambda out_width, out_height: \
-        img.resize((out_width, out_height)).save(save_string.format(name, ext, out_width, out_height, output))
-
-    if scale:
-        width, height = abs(int(img.size[0]*scale)), abs(int(img.size[1]*scale))
-        write_image(width, height)
-    else:
-        if width and not height:
-            exp = width/img.width
-            width, height = abs(int(img.width*exp)), abs(int(img.height*exp))
-            write_image(width, height)
-        elif height and not width:
-            exp = height/img.height
-            width, height = abs(int(img.width*exp)), abs(int(img.height*exp))
-            write_image(width, height)
-        else:
-            print('Notice: image proportions are probably not constrained')
-            write_image(width, height)
+    img.resize((res_width, res_height)).save(save_string.format(name, ext, res_width, res_height, output))
 
 
 def main():
     args = get_console_args()
-    resize_image(args.source, args.width, args.height, args.scale, args.output)
+
+    img = Image.open(args.source)
+    width, height, scale, output = args.width, args.height, args.scale, args.output
+
+    res_width, res_height = calculate_sizes(img, width, height, scale)
+    resize_image(args.source, res_width, res_height, output)
 
 if __name__ == '__main__':
     main()
